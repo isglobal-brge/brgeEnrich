@@ -4,7 +4,7 @@
 #'
 #' @param fsetId, is the ID of the functional set
 #' @param fsetType, is its type (e.g. 'P').
-#' @param entsetType, entsetType
+#' @param entityType, entsetType
 #'
 #' @return array with CPDB entity IDs
 #'
@@ -14,7 +14,8 @@
 #'
 #' getCpdbVersion()
 #' @export
-getCpdbIdsInFset <- function(fsetId, fsetType, entsetType) {
+getCpdbIdsInFset <- function(fsetId, fsetType, entityType) {
+
   if (!entityType %in% c("genes", "metabolites")) {
     stop("entityType should be 'genes' or 'metabolites'")
   }
@@ -26,7 +27,7 @@ getCpdbIdsInFset <- function(fsetId, fsetType, entsetType) {
          <cpd:getCpdbIdsInFset>
             <cpd:fsetId>', fsetId, "</cpd:fsetId>
             <cpd:fsetType>", fsetType, "</cpd:fsetType>
-            <cpd:entsetType>", entsetType, "</cpd:entsetType>
+            <cpd:entsetType>", entityType, "</cpd:entsetType>
          </cpd:getCpdbIdsInFset>
       </soapenv:Body>
    </soapenv:Envelope>")
@@ -45,7 +46,7 @@ getCpdbIdsInFset <- function(fsetId, fsetType, entsetType) {
   )
 
   data <- xml2::read_xml(reader$value())
-  results <- xml_text(xml2::xml_find_all(data, "//ns1:fsetType"))
+  results <- xml_text(xml2::xml_find_all(data, "//ns1:cpdbIds"))
 
   return(results)
 }

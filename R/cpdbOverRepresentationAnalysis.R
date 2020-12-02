@@ -3,7 +3,7 @@
 #' Performs over-representation analysis of functional sets with provided physical entities.
 #'
 #' @param entityType, should be either 'genes' or 'metabolites'.
-#' @param fsetType is the type of the functional sets to be tested (as obtained with the getAvailableFsetTypes function; e.g. 'P' for pathways).
+#' @param fsetType is the type of the functional sets to be tested (as obtained with the getCpdbAvailableFsetTypes function; e.g. 'P' for pathways).
 #' @param accNumbers is a list of interesting accNumbers (e.g. differentially expressed)
 #' @param accType is a valid accession number type.
 #' @param cpdbIdsBg is a list of CPDB entity IDs in the background. If empty, the default background is used (all different entities present in at least one functional set of the type fsetType and identifiable with accession numbers of type 'accType').
@@ -18,14 +18,14 @@
 #' accType <- "uniprot"
 #' accNumbers <- c("MDHM_HUMAN", "MDHC_HUMAN", "DLDH_HUMAN", "DHSA_HUMAN", "DHSB_HUMAN", "C560_HUMAN", "DHSD_HUMAN", "ODO2_HUMAN", "ODO1_HUMAN", "CISY_HUMAN", "ACON_HUMAN", "IDH3A_HUMAN", "IDH3B_HUMAN", "IDH3G_HUMAN", "SUCA_HUMAN", "SUCB1_HUMAN", "FUMH_HUMAN", "OGDHL_HUMAN", "ACOC_HUMAN", "DHTK1_HUMAN", "AMAC1_HUMAN")
 #'
-#' overrep <- overRepresentationAnalysis("genes", "C", accNumbers, accType)
+#' overrep <- cpdbOverRepresentationAnalysis("genes", "C", accNumbers, accType)
 #' @export
-overRepresentationAnalysis <- function(entityType, fsetType, accNumbers, accType, cpdbIdsBg = NULL, pThreshold = 0.05) {
+cpdbOverRepresentationAnalysis <- function(entityType, fsetType, accNumbers, accType, cpdbIdsBg = NULL, pThreshold = 0.05) {
   if (!entityType %in% c("genes", "metabolites")) {
     stop("entityType should be 'genes' or 'metabolites'")
   }
 
-  if (!fsetType %in% getAvailableFsetTypes(entityType)$ID) {
+  if (!fsetType %in% getCpdbAvailableFsetTypes(entityType)$ID) {
     stop("fsetType should be in Available FsetTypes for the current entityType")
   }
 
@@ -33,7 +33,7 @@ overRepresentationAnalysis <- function(entityType, fsetType, accNumbers, accType
     stop("valid accession number type (accType). Should be specified if parameter 'cpdbIdsBg' is not set")
   }
 
-  cpdbIds <- mapAccessionNumbers(accType, accNumbers)
+  cpdbIds <- mapCpdbAccessionNumbers(accType, accNumbers)
   cpdbIds <- cpdbIds %>% filter(cpdbId != "")
 
   cpdbIdsFg <- apply(cpdbIds[, c(2)], 1, function(dat) {
@@ -54,7 +54,7 @@ overRepresentationAnalysis <- function(entityType, fsetType, accNumbers, accType
             <cpd:fsetType>", fsetType, "</cpd:fsetType>
             ", paste0(cpdbIdsFg, collapse = " "), collapse = NULL)
 
-  if (!is_null(cpdbIdsBg)) {
+  if (!is.null(cpdbIdsBg)) {
     cpdbIdsBg <- apply(cpdbIds[, c(2)], 1, function(dat) {
       paste0(
         "<cpd:cpdbIdsBg>",

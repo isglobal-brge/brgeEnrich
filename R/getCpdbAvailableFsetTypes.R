@@ -11,9 +11,9 @@
 #'
 #' library(PathData)
 #'
-#' getAvailableFsetTypes("genes")
+#' getCpdbAvailableFsetTypes("genes")
 #' @export
-getAvailableFsetTypes <- function(entityType) {
+getCpdbAvailableFsetTypes <- function(entityType) {
   if (!entityType %in% c("genes", "metabolites")) {
     stop("entityType should be 'genes' or 'metabolites'")
   }

@@ -11,12 +11,9 @@
 #'
 #' library(PathData)
 #'
-#' getDefaultBackgroundSize("P", "hgnc-symbol")
+#' getCpdbDefaultBackgroundSize("P", "hgnc-symbol")
 #' @export
-getDefaultBackgroundSize <- function(fsetType, accType) {
-  if (!entityType %in% c("genes", "metabolites")) {
-    stop("entityType should be 'genes' or 'metabolites'")
-  }
+getCpdbDefaultBackgroundSize <- function(fsetType, accType) {
 
   body <- paste0('
    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:cpd="cpdbns">

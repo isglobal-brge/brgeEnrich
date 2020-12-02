@@ -4,14 +4,14 @@
 \alias{getCpdbIdsInFset}
 \title{Get all CPDB entity IDs in a functional set.}
 \usage{
-getCpdbIdsInFset(fsetId, fsetType, entsetType)
+getCpdbIdsInFset(fsetId, fsetType, entityType)
 }
 \arguments{
 \item{fsetId, }{is the ID of the functional set}
 
 \item{fsetType, }{is its type (e.g. 'P').}
 
-\item{entsetType, }{entsetType}
+\item{entityType, }{entsetType}
 }
 \value{
 array with CPDB entity IDs
