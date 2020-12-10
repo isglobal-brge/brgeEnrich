@@ -91,29 +91,101 @@ cpdbOverRepresentationAnalysis <- function(entityType, fsetType, accNumbers, acc
   name <- xml_text(xml2::xml_find_all(data, "//ns1:name"))
 
   details <- xml_text(xml2::xml_find_all(data, "//ns1:details"))
-  details <- as_tibble(data.frame(matrix(unlist(str_split(details, ";")), nrow = length(str_split(details, ";")), byrow = T)))
-  details <- details %>% mutate(
-    fsetId = str_remove(details$X1, "^fsetId:"),
-    CPDBurl = str_remove(details$X3, "^CPDBurl:"),
-    X1 = NULL,
-    X2 = NULL,
-    X3 = NULL
-  )
+  if(length(details)>0)
+  {
+    splited <- str_split(details, ";;")
+    # splited2 <- lapply(splited, insert_pmids)
 
-  overlappingEntitiesNum <- xml_text(xml2::xml_find_all(data, "//ns1:overlappingEntitiesNum"))
-  allEntitiesNum <- xml_text(xml2::xml_find_all(data, "//ns1:allEntitiesNum"))
-  pValue <- xml_text(xml2::xml_find_all(data, "//ns1:pValue"))
-  qValue <- xml_text(xml2::xml_find_all(data, "//ns1:qValue"))
+    if(fsetType=='P'){
+      details <- as_tibble(data.frame(matrix(unlist(lapply(splited, insert_pmids)), nrow = length(str_split(details, ";;")), byrow = T)))
+    }else if( grep("G?",fsetType)==1) {
+      # details <- as_tibble(data.frame(matrix(unlist(lapply(splited, insert_pmids)), nrow = length(str_split(details, ";;")), byrow = T)))
+      details <- as_tibble(data.frame(matrix(unlist(splited), nrow = length(str_split(details, ";;")), byrow = T)))
+    }
 
-  results <- bind_cols(
-    "name" = name,
-    "fsetId" = details$fsetId,
-    "CPDBurl" = details$CPDBurl,
-    "overlappingEntitiesNum" = overlappingEntitiesNum,
-    "allEntitiesNum" = allEntitiesNum,
-    "pValue" = as.numeric(pValue),
-    "qValue" = as.numeric(qValue)
-  )
+    ## TODO :
+    ##    Replace this code for an optimal one with a function that controls all fields in only on step
+
+    details <- details %>% separate(X1, c("X1k", "X1v"), ":", extra = "merge") %>%
+      separate(X2, c("X2k", "X2v"), ":", extra = "merge")
+    xk1 <- unique(details$X1k)
+    xk2 <- unique(details$X2k)
+    details <- details %>%
+      mutate(
+        !!as.name((xk1)) := X1v,
+        !!as.name((xk2)) := X2v,
+        X1k = NULL,
+        X1v = NULL,
+        X2k = NULL,
+        X2v = NULL
+      )
+
+    if(fsetType=='G2' | fsetType=='G3' | fsetType=='G4' |fsetType=='G5' | fsetType=='P')
+    {
+      details <- details %>% separate(X3, c("X3k", "X3v"), ":", extra = "merge")
+
+      xk3 <- unique(details$X3k)
+      details <- details %>%
+        mutate(
+          !!as.name((xk3)) := X3v,
+          X3k = NULL,
+          X3v = NULL,
+        )
+
+      if(fsetType=='P')
+      {
+        details <- details %>% separate(X4, c("X4k", "X4v"), ":", extra = "merge") %>%
+          separate(X5, c("X5k", "X5v"), ":", extra = "merge")
+
+        xk4 <- unique(details$X4k)
+        xk5 <- unique(details$X5k)
+        details <- details %>%
+          mutate(
+            !!as.name((xk4)) := X4v,
+            !!as.name((xk5)) := X5v,
+            X4k = NULL,
+            X4v = NULL,
+            X5k = NULL,
+            X5v = NULL,
+          )
+      }
+    }
+
+    overlappingEntitiesNum <- xml_text(xml2::xml_find_all(data, "//ns1:overlappingEntitiesNum"))
+    allEntitiesNum <- xml_text(xml2::xml_find_all(data, "//ns1:allEntitiesNum"))
+    pValue <- xml_text(xml2::xml_find_all(data, "//ns1:pValue"))
+    qValue <- xml_text(xml2::xml_find_all(data, "//ns1:qValue"))
+
+    results <- bind_cols(
+      "name" = name,
+      details,
+      "overlappingEntitiesNum" = overlappingEntitiesNum,
+      "allEntitiesNum" = allEntitiesNum,
+      "pValue" = as.numeric(pValue),
+      "qValue" = as.numeric(qValue)
+    )
+  }else {
+    results <- data.frame(name = character(),
+                          fsetId = character(),
+                          CPDBurl = character(),
+                          overlappingEntitiesNum = character(),
+                          allEntitiesNum = character(),
+                          pValue = numeric(),
+                          qValue = numeric(),
+                          stringsAsFactors=FALSE)
+  }
 
   return(results)
+}
+
+
+
+# Inserts element not availabled
+insert_pmids <- function(x)
+{
+  val <- x
+  if(length(grep('pmids',x[4]))==0) {
+    val <- insert(x, ats=4,values = c('pmids:<NA>'))
+  }
+  return(val)
 }
