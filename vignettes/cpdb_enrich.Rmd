@@ -28,6 +28,7 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE,
                       cache=TRUE)
 library(xml2)
 library(dplyr)
+library(tidyr)
 library(RCurl)
 library(stringr)
 library(brgeEnrich)
@@ -50,7 +51,7 @@ install.packages("devtools")
 # Install required packages 
 devtools::source_url("https://raw.githubusercontent.com/isglobal-brge/brgeEnrich/HEAD/installer.R")
 
-# Install EASIER package
+# Install brgeEnrich package
 devtools::install_github("isglobal-brge/brgeEnrich@HEAD")
 ```
 

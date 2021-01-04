@@ -9,5 +9,6 @@
 #' @import RCurl
 #' @import stringr
 #' @importFrom R.utils insert
+#' @importFrom tidyr separate
 #' @name brgeEnrich
 NULL
